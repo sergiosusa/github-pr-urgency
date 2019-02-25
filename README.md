@@ -2,10 +2,10 @@
 
 This script adds to a pull request list (project and general view) new features: 
 
-- Urgency configuration bar.
+- Urgency configuration toolbar (reload timer and urgency lapse).
 - Print a urgency color border to pull request by configured urgency.
 
-![Github Pull Request Urgency](https://i.ibb.co/dg43KhC/github-pr-urgency.png)
+![Github Pull Request Urgency](https://i.ibb.co/v3wqwXb/github-pr-urgency.png)
 
 ## Prerequisites
 

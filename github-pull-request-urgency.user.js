@@ -31,9 +31,11 @@ function PullRequestUrgency() {
         let low = urgencyConfiguration[0];
         let medium = urgencyConfiguration[1];
         let high = urgencyConfiguration[2];
+        let reloadTime = urgencyConfiguration[3];
 
-        this.addConfigurator(low, medium, high);
+        this.addConfigurator(low, medium, high, reloadTime);
         this.printUrgency(low, medium, high);
+        this.setReloadTimer(reloadTime);
 
     };
 
@@ -42,7 +44,7 @@ function PullRequestUrgency() {
         let urgencyConfiguration = JSON.parse(localStorage.getItem('github_urgency'));
 
         if (null === urgencyConfiguration) {
-            urgencyConfiguration = [2, 4, 8];
+            urgencyConfiguration = [2, 4, 8, 1];
         }
 
         return urgencyConfiguration;
@@ -53,19 +55,22 @@ function PullRequestUrgency() {
         let lowDays = document.getElementById('lowDays').value;
         let mediumDays = document.getElementById('mediumDays').value;
         let highDays = document.getElementById('highDays').value;
+        let reloadHours = document.getElementById('reloadHours').value;
 
         localStorage.setItem('github_urgency', JSON.stringify([
             lowDays,
             mediumDays,
-            highDays
+            highDays,
+            reloadHours
         ]));
 
         location.reload();
     };
 
-    this.addConfigurator = (low, medium, high) => {
+    this.addConfigurator = (low, medium, high, reloadTime) => {
 
-        let html = '<div style="background-color:' + this.BLUE + ';width:60px;height:27px;margin-right: 10px;">' +
+        let html = '<div style="width:130px;height:27px;margin-right: 10px;">Reload (hours) <input id="reloadHours" style="width:30px;text-align: center;" type="text" value="' + reloadTime + '"></div>' +
+            '<div style="background-color:' + this.BLUE + ';width:60px;height:27px;margin-right: 10px;">' +
             '<input style="width:30px;text-align: center;" type="text" value="0" disabled></div>' +
             '<div style="background-color:' + this.GREEN + ';width:60px;height:27px;margin-right: 10px;">' +
             '<input id="lowDays" style="width:30px;text-align: center;" type="text" value="' + low + '"></div>' +
@@ -120,6 +125,14 @@ function PullRequestUrgency() {
 
             this.drawNode(openPullRequestsDate[x].parentNode.parentNode.parentNode.parentNode, color);
         }
+    };
+
+    this.setReloadTimer = (reloadTime) => {
+
+        setTimeout(() => {
+            location.reload();
+        }, reloadTime * 60 * 60 * 1000);
+
     };
 
     this.drawNode = (node, color) => {
