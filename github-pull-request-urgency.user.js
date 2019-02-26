@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Github Pull Request Urgency
 // @namespace    https://sergiosusa.com
-// @version      0.1
+// @version      0.2
 // @description  Add some border color to pull request by urgency configuration.
 // @author       Sergio Susa (https://sergiosusa.com)
-// @match        https://github.com/*/pulls
+// @match        https://github.com/*/pulls*
 // @match        https://github.com/pulls*
 // @grant        none
 // ==/UserScript==
@@ -35,6 +35,7 @@ function PullRequestUrgency() {
 
         this.addConfigurator(low, medium, high, reloadTime);
         this.printUrgency(low, medium, high);
+        this.formatAssignees();
         this.setReloadTimer(reloadTime);
 
     };
@@ -127,6 +128,13 @@ function PullRequestUrgency() {
         }
     };
 
+    this.drawNode = (node, color) => {
+        node.style.borderColor = color;
+        node.style.borderStyle = 'solid';
+        node.borderBottomWidth = 'thin';
+        node.style.borderTopWidth = 'thin';
+    }
+
     this.setReloadTimer = (reloadTime) => {
 
         setTimeout(() => {
@@ -135,11 +143,17 @@ function PullRequestUrgency() {
 
     };
 
-    this.drawNode = (node, color) => {
-        node.style.borderColor = color;
-        node.style.borderStyle = 'solid';
-        node.borderBottomWidth = 'thin';
-        node.style.borderTopWidth = 'thin';
-    }
+    this.formatAssignees = () => {
+
+        let assignees = document.querySelectorAll("div > a.avatar > img");
+
+        for (let x = 0; x < assignees.length; x++) {
+            assignees[x].setAttribute('width', '50px');
+            assignees[x].setAttribute('height', '50px');
+            assignees[x].parentElement.style.height = '50px';
+            assignees[x].parentElement.style.width = '50px';
+            assignees[x].parentElement.style.marginTop = '-10px';
+        }
+    };
 
 }
