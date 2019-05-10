@@ -99,10 +99,14 @@ function PullRequestUrgency() {
     this.printUrgency = (low, medium, high) => {
 
         let today = new Date();
-        let openPullRequestsDate = document.getElementsByTagName("relative-time");
+        let prList = document.querySelectorAll(".Box-row");
 
-        for (let x = 0; x < openPullRequestsDate.length; x++) {
-            let pullRequestDate = new Date(openPullRequestsDate[x].getAttribute("datetime"));
+        for (let x = 0; x < prList.length; x++) {
+            let backgroundColor;
+            let openPullRequestsDate = prList[x].getElementsByTagName("relative-time")[0];
+
+            let isDraft = prList[x].getElementsByClassName('opened-by')[0].nextElementSibling.innerHTML.includes('Draft');
+            let pullRequestDate = new Date(openPullRequestsDate.getAttribute("datetime"));
             let timeDiffOnMilliseconds = Math.abs(pullRequestDate.getTime() - today.getTime());
             let timeDiffOnDays = Math.ceil(timeDiffOnMilliseconds / (1000 * 3600 * 24));
 
@@ -124,15 +128,25 @@ function PullRequestUrgency() {
                 color = this.RED;
             }
 
-            this.drawNode(openPullRequestsDate[x].parentNode.parentNode.parentNode.parentNode, color);
+            if (isDraft) {
+                backgroundColor = 'rgba(245, 234, 212, 0.7)';
+                color = '#e1e4e8';
+            }
+
+            this.drawNode(prList[x], color, backgroundColor);
         }
     };
 
-    this.drawNode = (node, color) => {
+    this.drawNode = (node, color, backgroundColor) => {
         node.style.borderColor = color;
         node.style.borderStyle = 'solid';
-        node.borderBottomWidth = 'thin';
+        node.style.borderBottomWidth = 'thin';
         node.style.borderTopWidth = 'thin';
+
+        if (backgroundColor) {
+            node.style.borderTopColor = '#e1e4e8';
+            node.style.backgroundColor = backgroundColor;
+        }
     }
 
     this.setReloadTimer = (reloadTime) => {
