@@ -108,7 +108,7 @@ function PullRequestUrgency() {
                 .nextElementSibling
                 .innerHTML.includes('Draft');
 
-            if (!isDraft) {
+            if (isDraft) {
                 this.printDraft(pullRequest);
             } else {
                 this.printUrgency(pullRequest, low, medium, high);
