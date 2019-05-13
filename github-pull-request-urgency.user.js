@@ -23,6 +23,8 @@ function PullRequestUrgency() {
     this.GREEN = '#0EC600';
     this.ORANGE = '#FF9800';
     this.RED = '#FE0900';
+    this.GRAY = '#E1E4E8';
+    this.PEACH = 'rgba(245, 234, 212, 0.7)';
 
     this.init = () => {
 
@@ -34,7 +36,7 @@ function PullRequestUrgency() {
         let reloadTime = urgencyConfiguration[3];
 
         this.addConfigurator(low, medium, high, reloadTime);
-        this.printUrgency(low, medium, high);
+        this.processPullRequests(low, medium, high);
         this.formatAssignees();
         this.setReloadTimer(reloadTime);
 
@@ -96,46 +98,63 @@ function PullRequestUrgency() {
 
     };
 
-    this.printUrgency = (low, medium, high) => {
+    this.processPullRequests = (low, medium, high) => {
+
+        let pullRequestList = document.querySelectorAll(".Box-row");
+
+        pullRequestList.forEach(pullRequest => {
+            let isDraft = pullRequest
+                .getElementsByClassName('opened-by')[0]
+                .nextElementSibling
+                .innerHTML.includes('Draft');
+
+            if (!isDraft) {
+                this.printDraft(pullRequest);
+            } else {
+                this.printUrgency(pullRequest, low, medium, high);
+            }
+        });
+        
+    }
+
+    this.printUrgency = (pullRequest, low, medium, high) => {
 
         let today = new Date();
-        let prList = document.querySelectorAll(".Box-row");
 
-        for (let x = 0; x < prList.length; x++) {
-            let backgroundColor;
-            let openPullRequestsDate = prList[x].getElementsByTagName("relative-time")[0];
+        let backgroundColor;
+        let openPullRequestsDate = pullRequest.getElementsByTagName("relative-time")[0];
 
-            let isDraft = prList[x].getElementsByClassName('opened-by')[0].nextElementSibling.innerHTML.includes('Draft');
-            let pullRequestDate = new Date(openPullRequestsDate.getAttribute("datetime"));
-            let timeDiffOnMilliseconds = Math.abs(pullRequestDate.getTime() - today.getTime());
-            let timeDiffOnDays = Math.ceil(timeDiffOnMilliseconds / (1000 * 3600 * 24));
+        let pullRequestDate = new Date(openPullRequestsDate.getAttribute("datetime"));
+        let timeDiffOnMilliseconds = Math.abs(pullRequestDate.getTime() - today.getTime());
+        let timeDiffOnDays = Math.ceil(timeDiffOnMilliseconds / (1000 * 3600 * 24));
 
-            let color;
+        let color;
 
-            if (timeDiffOnDays >= 0 && timeDiffOnDays <= low) {
-                color = this.BLUE;
-            }
-
-            if (timeDiffOnDays > low && timeDiffOnDays <= medium) {
-                color = this.GREEN;
-            }
-
-            if (timeDiffOnDays > medium && timeDiffOnDays <= high) {
-                color = this.ORANGE;
-            }
-
-            if (timeDiffOnDays > high) {
-                color = this.RED;
-            }
-
-            if (isDraft) {
-                backgroundColor = 'rgba(245, 234, 212, 0.7)';
-                color = '#e1e4e8';
-            }
-
-            this.drawNode(prList[x], color, backgroundColor);
+        if (timeDiffOnDays >= 0 && timeDiffOnDays <= low) {
+            color = this.BLUE;
         }
+
+        if (timeDiffOnDays > low && timeDiffOnDays <= medium) {
+            color = this.GREEN;
+        }
+
+        if (timeDiffOnDays > medium && timeDiffOnDays <= high) {
+            color = this.ORANGE;
+        }
+
+        if (timeDiffOnDays > high) {
+            color = this.RED;
+        }
+
+        this.drawNode(pullRequest, color);
     };
+
+    this.printDraft = (pullRequest) => {
+        let color = this.GRAY;
+        let backgroundColor = this.PEACH;
+
+        this.drawNode(pullRequest, color, backgroundColor);
+    }
 
     this.drawNode = (node, color, backgroundColor) => {
         node.style.borderColor = color;
@@ -144,7 +163,6 @@ function PullRequestUrgency() {
         node.style.borderTopWidth = 'thin';
 
         if (backgroundColor) {
-            node.style.borderTopColor = '#e1e4e8';
             node.style.backgroundColor = backgroundColor;
         }
     }
