@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Github Pull Request Urgency
 // @namespace    https://sergiosusa.com
-// @version      0.2
+// @version      0.3
 // @description  Add some border color to pull request by urgency configuration.
 // @author       Sergio Susa (https://sergiosusa.com)
 // @match        https://github.com/*/pulls*
