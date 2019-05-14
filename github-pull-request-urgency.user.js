@@ -121,7 +121,6 @@ function PullRequestUrgency() {
 
         let today = new Date();
 
-        let backgroundColor;
         let openPullRequestsDate = pullRequest.getElementsByTagName("relative-time")[0];
 
         let pullRequestDate = new Date(openPullRequestsDate.getAttribute("datetime"));
