@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Github Pull Request Urgency
 // @namespace    https://sergiosusa.com
-// @version      0.2
+// @version      0.3
 // @description  Add some border color to pull request by urgency configuration.
 // @author       Sergio Susa (https://sergiosusa.com)
 // @match        https://github.com/*/pulls*
@@ -23,6 +23,8 @@ function PullRequestUrgency() {
     this.GREEN = '#0EC600';
     this.ORANGE = '#FF9800';
     this.RED = '#FE0900';
+    this.GRAY = '#E1E4E8';
+    this.PEACH = 'rgba(245, 234, 212, 0.7)';
 
     this.init = () => {
 
@@ -34,7 +36,7 @@ function PullRequestUrgency() {
         let reloadTime = urgencyConfiguration[3];
 
         this.addConfigurator(low, medium, high, reloadTime);
-        this.printUrgency(low, medium, high);
+        this.processPullRequests(low, medium, high);
         this.formatAssignees();
         this.setReloadTimer(reloadTime);
 
@@ -96,43 +98,72 @@ function PullRequestUrgency() {
 
     };
 
-    this.printUrgency = (low, medium, high) => {
+    this.processPullRequests = (low, medium, high) => {
+
+        let pullRequestList = document.querySelectorAll(".Box-row");
+
+        pullRequestList.forEach(pullRequest => {
+            let isDraft = pullRequest
+                .getElementsByClassName('opened-by')[0]
+                .nextElementSibling
+                .innerHTML.includes('Draft');
+
+            if (isDraft) {
+                this.printDraft(pullRequest);
+            } else {
+                this.printUrgency(pullRequest, low, medium, high);
+            }
+        });
+        
+    }
+
+    this.printUrgency = (pullRequest, low, medium, high) => {
 
         let today = new Date();
-        let openPullRequestsDate = document.getElementsByTagName("relative-time");
 
-        for (let x = 0; x < openPullRequestsDate.length; x++) {
-            let pullRequestDate = new Date(openPullRequestsDate[x].getAttribute("datetime"));
-            let timeDiffOnMilliseconds = Math.abs(pullRequestDate.getTime() - today.getTime());
-            let timeDiffOnDays = Math.ceil(timeDiffOnMilliseconds / (1000 * 3600 * 24));
+        let openPullRequestsDate = pullRequest.getElementsByTagName("relative-time")[0];
 
-            let color;
+        let pullRequestDate = new Date(openPullRequestsDate.getAttribute("datetime"));
+        let timeDiffOnMilliseconds = Math.abs(pullRequestDate.getTime() - today.getTime());
+        let timeDiffOnDays = Math.ceil(timeDiffOnMilliseconds / (1000 * 3600 * 24));
 
-            if (timeDiffOnDays >= 0 && timeDiffOnDays <= low) {
-                color = this.BLUE;
-            }
+        let color;
 
-            if (timeDiffOnDays > low && timeDiffOnDays <= medium) {
-                color = this.GREEN;
-            }
-
-            if (timeDiffOnDays > medium && timeDiffOnDays <= high) {
-                color = this.ORANGE;
-            }
-
-            if (timeDiffOnDays > high) {
-                color = this.RED;
-            }
-
-            this.drawNode(openPullRequestsDate[x].parentNode.parentNode.parentNode.parentNode, color);
+        if (timeDiffOnDays >= 0 && timeDiffOnDays <= low) {
+            color = this.BLUE;
         }
+
+        if (timeDiffOnDays > low && timeDiffOnDays <= medium) {
+            color = this.GREEN;
+        }
+
+        if (timeDiffOnDays > medium && timeDiffOnDays <= high) {
+            color = this.ORANGE;
+        }
+
+        if (timeDiffOnDays > high) {
+            color = this.RED;
+        }
+
+        this.drawNode(pullRequest, color);
     };
 
-    this.drawNode = (node, color) => {
+    this.printDraft = (pullRequest) => {
+        let color = this.GRAY;
+        let backgroundColor = this.PEACH;
+
+        this.drawNode(pullRequest, color, backgroundColor);
+    }
+
+    this.drawNode = (node, color, backgroundColor) => {
         node.style.borderColor = color;
         node.style.borderStyle = 'solid';
-        node.borderBottomWidth = 'thin';
+        node.style.borderBottomWidth = 'thin';
         node.style.borderTopWidth = 'thin';
+
+        if (backgroundColor) {
+            node.style.backgroundColor = backgroundColor;
+        }
     }
 
     this.setReloadTimer = (reloadTime) => {
